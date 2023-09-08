@@ -11,5 +11,8 @@
     "url": "git+https://github.com:JohnPhillipO/fragments.git"
   },
   "author": "J.P. Ostiano",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.0.3"
+  }
 }
