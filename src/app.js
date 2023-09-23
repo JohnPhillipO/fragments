@@ -13,6 +13,7 @@ const pino = require('pino-http')({
 
 const passport = require('passport');
 const authenticate = require('./auth');
+const { createErrorResponse } = require('./response');
 
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
@@ -59,13 +60,7 @@ app.use((err, req, res, next) => {
     logger.error({ err }, `Error processing request`);
   }
 
-  res.status(status).json({
-    status: 'error',
-    error: {
-      message,
-      code: status,
-    },
-  });
+  res.status(status).json(createErrorResponse(status, message));
 });
 
 // Export our `app` so we can access it in server.js
