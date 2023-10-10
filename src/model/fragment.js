@@ -75,8 +75,8 @@ class Fragment {
    * Saves the current fragment to the database
    * @returns Promise<void>
    */
-  save() {
-    writeFragment(this);
+  async save() {
+    await writeFragment(this);
     this.updated = new Date().toISOString();
   }
 

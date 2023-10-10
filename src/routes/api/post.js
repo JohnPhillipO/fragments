@@ -1,9 +1,10 @@
 // src/routes/api/post.js
 // Use Fragment Class
+const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
 
-require('dotenv').config();
+// require('dotenv').config();
 
 module.exports = async (req, res) => {
   if (Buffer.isBuffer(req.body) && Fragment.isSupportedType(req.headers['content-type'])) {
@@ -20,6 +21,7 @@ module.exports = async (req, res) => {
     // Return a success response
     res.status(201).json(createSuccessResponse({ fragment: fragment }));
   } else {
+    logger.error(`Invalid: ${req.body} and ${req.headers['content-type']}`);
     res.status(415).json(createErrorResponse(415, 'Invalid file type'));
   }
 };
