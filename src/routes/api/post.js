@@ -3,6 +3,8 @@
 const { Fragment } = require('../../model/fragment');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
 
+require('dotenv').config();
+
 module.exports = async (req, res) => {
   if (Buffer.isBuffer(req.body) && Fragment.isSupportedType(req.headers['content-type'])) {
     const type = req.headers['content-type'];
@@ -12,9 +14,9 @@ module.exports = async (req, res) => {
     await fragment.save();
     await fragment.setData(req.body);
 
-    // const location = `${process.env.API_URL || req.header.host}/v1/fragments/${fragment.id}`;
-    // // Set location header using API URL
-    // res.setHeader({ Location: location });
+    const location = `${process.env.API_URL || req.header.host}/v1/fragments/${fragment.id}`;
+    // Set location header using API URL
+    res.setHeader('Location', location);
     // Return a success response
     res.status(201).json(createSuccessResponse({ fragment: fragment }));
   } else {
