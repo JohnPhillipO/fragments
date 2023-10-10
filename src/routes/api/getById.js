@@ -8,53 +8,31 @@ module.exports = async (req, res) => {
   const idWithExt = req.params.id;
 
   const idWithExtArray = idWithExt.split('.');
+  const id = idWithExtArray[0];
 
-  let id;
-  let ext;
-
-  if (idWithExtArray.length > 1) {
-    id = idWithExtArray.slice(0, idWithExtArray.length - 1).join('.');
-    ext = idWithExtArray[idWithExtArray.length - 1];
-  } else {
-    id = idWithExtArray[0];
-    ext = null;
-  }
+  // Popping the id from idWithExtArray if it came with .*
+  const ext = idWithExtArray.length > 1 ? idWithExtArray.pop() : null;
 
   const fragments = await Fragment.byUser(req.user);
 
   if (fragments.includes(id)) {
-    const fragmentObj = await Fragment.byId(req.user, id);
-
-    let fragment;
-
-    if (fragmentObj instanceof Fragment) {
-      fragment = fragmentObj;
-    } else {
-      fragment = new Fragment({
-        id: id,
-        ownerId: fragmentObj.ownerId,
-        created: fragmentObj.created,
-        update: fragmentObj.update,
-        type: fragmentObj.type,
-        size: fragmentObj.size,
-      });
-    }
+    const fragment = await Fragment.byId(req.user, id);
 
     if (fragment) {
-      let dataResult = null;
+      let data = null;
 
       if (!ext) {
-        dataResult = await fragment.getData();
+        data = await fragment.getData();
       } else {
         // Change: Only text/plain and .txt are valid types
         if (fragment.mimeType == 'text/plain' && ext == 'txt') {
-          dataResult = await fragment.getData();
+          data = await fragment.getData();
         }
       }
 
-      if (dataResult) {
+      if (data) {
         res.setHeader('Content-Type', fragment.mimeType);
-        res.status(200).json(createSuccessResponse({ fragment: dataResult }));
+        res.status(200).json(createSuccessResponse({ fragment: data }));
       } else {
         res.status(415).json(createErrorResponse(415, 'unknown or unsupported type'));
       }
