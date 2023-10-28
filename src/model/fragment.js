@@ -67,8 +67,12 @@ class Fragment {
    * @param {string} id fragment's id
    * @returns Promise<void>
    */
-  static delete(ownerId, id) {
-    deleteFragment(ownerId, id);
+  static async delete(ownerId, id) {
+    const fragment = await deleteFragment(ownerId, id);
+    if (!fragment) {
+      throw new Error(`Fragment with id ${id} not found.`);
+    }
+    return fragment;
   }
 
   /**
@@ -95,13 +99,14 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    // Trow error if not given a buffer
+    // Throw error if not given a buffer
     if (!Buffer.isBuffer(data)) {
       throw new Error('Data must be a buffer');
     }
     this.size = data.length;
     await writeFragmentData(this.ownerId, this.id, data);
     this.updated = new Date().toISOString();
+    this.save(); // Saving after updating
   }
 
   /**

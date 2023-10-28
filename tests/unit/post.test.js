@@ -36,7 +36,7 @@ describe('POST /v1/fragments', () => {
     expect(res.body.status).toBe('ok');
   });
 
-  // Test response include all necessary properties w/ location header
+  // Test response include all necessary properties
   test('fragment includes all necessary properties', async () => {
     const res = await request(app)
       .post('/v1/fragments')

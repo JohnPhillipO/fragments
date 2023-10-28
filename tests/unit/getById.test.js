@@ -16,6 +16,7 @@ describe('GET /v1/fragments/:id', () => {
       .auth('user1@email.com', 'password1');
 
     expect(res.status).toBe(200);
+    expect(Buffer.from(res.text)).toEqual(Buffer.from('This is a fragment'));
   });
 
   test('Check if it gets a valid fragment with valid types and without ext', async () => {
@@ -30,6 +31,7 @@ describe('GET /v1/fragments/:id', () => {
       .auth('user1@email.com', 'password1');
 
     expect(res.status).toBe(200);
+    expect(Buffer.from(res.text)).toEqual(Buffer.from('This is a fragment'));
   });
 
   test('Check invalid types', async () => {

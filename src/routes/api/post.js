@@ -20,8 +20,10 @@ module.exports = async (req, res) => {
     res.setHeader('Location', location);
     // Return a success response
     res.status(201).json(createSuccessResponse({ fragment: fragment }));
-  } else {
-    logger.error(`Invalid: ${req.body} and ${req.headers['content-type']}`);
-    res.status(415).json(createErrorResponse(415, 'Invalid file type'));
+    return;
   }
+
+  // If the conditions above are not met, handle the error case.
+  logger.error(`Invalid: ${req.body} and ${req.headers['content-type']}`);
+  res.status(415).json(createErrorResponse(415, 'Invalid file type'));
 };
