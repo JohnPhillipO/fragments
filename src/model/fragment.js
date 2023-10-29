@@ -25,7 +25,7 @@ class Fragment {
     if (size < 0) {
       throw new Error('Size cannot be negative');
     }
-    if (!type.startsWith('text/')) {
+    if (!type.startsWith('text/') && !type.startsWith('application/json')) {
       throw new Error('Invalid type');
     }
 
@@ -141,7 +141,13 @@ class Fragment {
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
   static isSupportedType(value) {
-    const validTypes = ['text/plain', 'text/plain; charset=utf-8'];
+    const validTypes = [
+      'text/plain',
+      'text/plain; charset=utf-8',
+      'text/markdown',
+      'text/html',
+      'application/json',
+    ];
     return validTypes.includes(value);
   }
 }

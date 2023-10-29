@@ -5,6 +5,29 @@ const { createErrorResponse } = require('../../response');
 // Using node path module.
 const path = require('path');
 
+// Checks if its a valid type
+function validTypes(contentType, extension) {
+  let formats = [];
+  switch (contentType) {
+    case 'text/plain':
+      formats = ['txt'];
+      break;
+    case 'text/markdown':
+      formats = ['md', 'html', 'txt'];
+      break;
+    case 'text/html':
+      formats = ['html', 'txt'];
+      break;
+    case 'application/json':
+      formats = ['json', 'txt'];
+      break;
+    default:
+      return false;
+  }
+
+  return formats.includes(extension);
+}
+
 module.exports = async (req, res) => {
   // Get the request params
   const idWithExt = req.params.id;
@@ -23,8 +46,7 @@ module.exports = async (req, res) => {
     if (!extension) {
       data = await fragment.getData();
     } else {
-      // Change: Only text/plain and .txt are valid types
-      if (fragment.mimeType == 'text/plain' && extension == 'txt') {
+      if (validTypes(fragment.mimeType, extension)) {
         data = await fragment.getData();
       }
     }
