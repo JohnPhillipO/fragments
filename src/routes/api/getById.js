@@ -21,8 +21,6 @@ function validTypes(contentType, extension) {
     case 'application/json':
       formats = ['json', 'txt'];
       break;
-    default:
-      return false;
   }
 
   return formats.includes(extension);
@@ -53,7 +51,11 @@ module.exports = async (req, res) => {
 
     if (data) {
       res.setHeader('Content-Type', fragment.mimeType);
-      res.status(200).send(Buffer.from(data));
+      if (fragment.mimeType == 'application/json') {
+        res.status(200).json(data);
+      } else {
+        res.status(200).send(Buffer.from(data));
+      }
     } else {
       res.status(415).json(createErrorResponse(415, 'unknown or unsupported type'));
     }
