@@ -5,59 +5,29 @@ const { createErrorResponse } = require('../../response');
 // Using node path module.
 const path = require('path');
 
-// Checks if its a valid type
-function validTypes(contentType, extension) {
-  let formats = [];
-  switch (contentType) {
-    case 'text/plain':
-      formats = ['txt'];
-      break;
-    case 'text/markdown':
-      formats = ['md', 'html', 'txt'];
-      break;
-    case 'text/html':
-      formats = ['html', 'txt'];
-      break;
-    case 'application/json':
-      formats = ['json', 'txt'];
-      break;
-  }
-
-  return formats.includes(extension);
-}
-
 module.exports = async (req, res) => {
-  // Get the request params
-  const idWithExt = req.params.id;
-
   // use path modules path.parse to split the idWithExit into respected objects
-  // See https://nodejs.org/api/path.html#pathparsepath
-  const query = path.parse(idWithExt);
+  const query = path.parse(req.params.id);
   // get the Extension
-  let extension = query.ext.split('.').pop();
-
-  //const fragments = await Fragment.byUser(req.user);
+  let ext = query.ext.split('.').pop();
   try {
     const fragment = await Fragment.byId(req.user, query.name);
     let data = null;
 
-    if (!extension) {
+    if (!ext || fragment.mimeType.endsWith(fragment.extFullName(ext))) {
+      // (no extension and has same type and ext) = no conversions
       data = await fragment.getData();
-    } else {
-      if (validTypes(fragment.mimeType, extension)) {
-        data = await fragment.getData();
-      }
-    }
-
-    if (data) {
       res.setHeader('Content-Type', fragment.mimeType);
-      if (fragment.mimeType == 'application/json') {
-        res.status(200).json(data);
-      } else {
-        res.status(200).send(Buffer.from(data));
-      }
+      res.status(200).send(Buffer.from(data));
     } else {
-      res.status(415).json(createErrorResponse(415, 'unknown or unsupported type'));
+      // Convert
+      try {
+        data = await fragment.convert(ext);
+        res.setHeader('Content-Type', `text/${fragment.extFullName(ext)}`);
+        res.status(200).send(Buffer.from(data));
+      } catch (err) {
+        res.status(415).json(createErrorResponse(415, 'unknown or unsupported type'));
+      }
     }
   } catch (err) {
     res.status(404).json(createErrorResponse(404, 'Id not found!'));

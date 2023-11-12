@@ -3,6 +3,8 @@
 const { randomUUID } = require('crypto');
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
+const MarkdownIt = require('markdown-it'),
+  md = new MarkdownIt();
 
 // Functions for working with fragment metadata/data using our DB
 const {
@@ -68,11 +70,7 @@ class Fragment {
    * @returns Promise<void>
    */
   static async delete(ownerId, id) {
-    const fragment = await deleteFragment(ownerId, id);
-    if (!fragment) {
-      throw new Error(`Fragment with id ${id} not found.`);
-    }
-    return fragment;
+    return await deleteFragment(ownerId, id);
   }
 
   /**
@@ -149,6 +147,39 @@ class Fragment {
       'application/json',
     ];
     return validTypes.includes(value);
+  }
+
+  /*
+   * Does valid conversions with current content-type.
+   */
+  async convert(value) {
+    var fragment = await this.getData();
+    var result;
+    if (value == 'txt') {
+      result = fragment;
+    } else if (value == 'html') {
+      if (this.mimeType.endsWith('markdown')) {
+        result = md.render(fragment.toString());
+      }
+    }
+
+    return result;
+  }
+
+  /*
+   * If the valid ext is not the exact extension then convert the extension.
+   * If ".txt" has type "text/html" convert it to "text/plain"
+   */
+  extFullName(value) {
+    var extension;
+    if (value == 'txt') {
+      extension = 'plain';
+    } else if (value == 'md') {
+      extension = 'markdown';
+    } else {
+      extension = value;
+    }
+    return extension;
   }
 }
 

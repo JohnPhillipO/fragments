@@ -252,5 +252,33 @@ describe('Fragment class', () => {
       await Fragment.delete('1234', fragment.id);
       expect(() => Fragment.byId('1234', fragment.id)).rejects.toThrow();
     });
+
+    test('Converts value to txt', async () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'text/plain', size: 0 });
+      await fragment.save();
+      await fragment.setData(Buffer.from('Hello, world!'));
+
+      const result = await fragment.convert('txt');
+      const expected = await fragment.getData();
+      expect(result).toBe(expected);
+    });
+
+    test('Converts markdown value to html', async () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'text/markdown', size: 0 });
+      await fragment.save();
+      await fragment.setData(Buffer.from('# Header'));
+
+      const result = await fragment.convert('html');
+      expect(result).toContain('<h1>Header</h1>');
+    });
+
+    test('Does not convert html for non-markdown content', async () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'text/plain', size: 0 });
+      await fragment.save();
+      await fragment.setData(Buffer.from('Hello, world!'));
+
+      const result = await fragment.convert('html');
+      expect(result).toBeUndefined();
+    });
   });
 });

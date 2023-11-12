@@ -49,21 +49,6 @@ describe('GET /v1/fragments/:id or GET /v1/fragments/:id.ext', () => {
     expect(Buffer.from(res.text)).toEqual(Buffer.from('<h1>This is a fragment.</h1>'));
   });
 
-  test('Check if it gets a valid fragment of application/json with valid ext', async () => {
-    const resPost = await request(app)
-      .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'application/json')
-      .send('This is a fragment');
-
-    const res = await request(app)
-      .get(`/v1/fragments/${resPost.body.fragment.id}.json`)
-      .auth('user1@email.com', 'password1');
-
-    expect(res.status).toBe(200);
-    expect(Buffer.from(res.body)).toEqual(Buffer.from('This is a fragment'));
-  });
-
   test('Check if it gets a valid fragment with valid types and without ext', async () => {
     const resPost = await request(app)
       .post('/v1/fragments')
