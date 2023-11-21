@@ -12,6 +12,8 @@ const { authenticate } = require('../auth');
 
 const { createSuccessResponse } = require('../response');
 
+const { hostname } = require('os');
+
 /**
  * Expose all of our API routes on /v1/* to include an API version.
  * Protect them all so you have to be authenticated in order to access.
@@ -31,6 +33,8 @@ router.get('/', (req, res) => {
       author,
       githubUrl: 'https://github.com/JohnPhillipO/fragments',
       version,
+      // Include the hostname in the response
+      hostname: hostname(),
     })
   );
 });
