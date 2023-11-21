@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     if (!ext || fragment.mimeType.endsWith(fragment.extFullName(ext))) {
       // (no extension and has same type and ext) = no conversions
       data = await fragment.getData();
-      res.setHeader('Content-Type', fragment.mimeType);
+      res.setHeader('Content-Type', fragment.type);
       res.status(200).send(Buffer.from(data));
     } else {
       // Convert
