@@ -23,6 +23,9 @@ router.get('/fragments/:id', require('./getById'));
 // Get fragments by id's metadata: GET /v1/fragments/:id/info
 router.get('/fragments/:id/info', require('./getInfo'));
 
+// Delete a fragment: DELETE /v1/fragments
+router.delete('/fragments/:id', require('./delete'));
+
 // Define our post route, which will be POST /fragments
 const rawBody = () =>
   express.raw({

@@ -33,6 +33,10 @@
         {
           "name": "PORT",
           "value": "8080"
+        },
+        {
+          "name": "AWS_S3_BUCKET_NAME",
+          "value": "jostiano1-fragments"
         }
       ],
       "resourceRequirements": null,
@@ -68,7 +72,7 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": null,
+  "taskRoleArn": "arn:aws:iam::488229474073:role/LabRole",
   "compatibilities": ["EC2", "FARGATE"],
   "taskDefinitionArn": "arn:aws:ecs:us-east-1:488229474073:task-definition/fragments-task:1",
   "family": "fragments-task",
