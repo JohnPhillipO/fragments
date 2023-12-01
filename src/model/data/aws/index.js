@@ -1,4 +1,3 @@
-// XXX: temporary use of memory-db until we add DynamoDB
 const logger = require('../../../logger');
 
 const s3Client = require('./s3Client');
