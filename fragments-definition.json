@@ -27,10 +27,6 @@
       "cpu": 256,
       "environment": [
         {
-          "name": "API_URL",
-          "value": "http://localhost:8080"
-        },
-        {
           "name": "PORT",
           "value": "8080"
         },

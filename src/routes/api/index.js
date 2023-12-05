@@ -14,18 +14,6 @@ const contentType = require('content-type');
 // Use Fragment Class
 const { Fragment } = require('../../model/fragment');
 
-// Define our first route, which will be: GET /v1/fragments
-router.get('/fragments', require('./get'));
-
-// Get fragments by id: GET /v1/fragments/:id
-router.get('/fragments/:id', require('./getById'));
-
-// Get fragments by id's metadata: GET /v1/fragments/:id/info
-router.get('/fragments/:id/info', require('./getInfo'));
-
-// Delete a fragment: DELETE /v1/fragments
-router.delete('/fragments/:id', require('./delete'));
-
 // Define our post route, which will be POST /fragments
 const rawBody = () =>
   express.raw({
@@ -41,5 +29,20 @@ const rawBody = () =>
   });
 
 router.post('/fragments', rawBody(), require('./post'));
+
+// Define our first route, which will be: GET /v1/fragments
+router.get('/fragments', require('./get'));
+
+// Get fragments by id: GET /v1/fragments/:id
+router.get('/fragments/:id', require('./getById'));
+
+// Get fragments by id's metadata: GET /v1/fragments/:id/info
+router.get('/fragments/:id/info', require('./getInfo'));
+
+// Delete a fragment: DELETE /v1/fragments
+router.delete('/fragments/:id', require('./delete'));
+
+// Put a fragment: PUT /v1/fragments/:id
+router.put('/fragments/:id', rawBody(), require('./put'));
 
 module.exports = router;

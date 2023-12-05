@@ -12,8 +12,8 @@ module.exports = async (req, res) => {
     const ownerId = req.user;
     const fragment = new Fragment({ ownerId, type });
 
-    await fragment.save();
     await fragment.setData(req.body);
+    await fragment.save();
 
     const location = `${process.env.API_URL || req.header.host}/v1/fragments/${fragment.id}`;
     // Set location header using API URL
