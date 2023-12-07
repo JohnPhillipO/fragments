@@ -1,4 +1,5 @@
 const { Fragment } = require('../../src/model/fragment');
+const fs = require('fs');
 
 // Wait for a certain number of ms. Feel free to change this value
 // if it isn't long enough for your test runs. Returns a Promise.
@@ -9,13 +10,10 @@ const validTypes = [
   `text/markdown`,
   `text/html`,
   `application/json`,
-  /*
-   Currently, only text/plain is supported. Others will be added later.
   `image/png`,
   `image/jpeg`,
   `image/webp`,
   `image/gif`,
-  */
 ];
 
 describe('Fragment class', () => {
@@ -169,6 +167,17 @@ describe('Fragment class', () => {
     });
   });
 
+  describe('formats', () => {
+    test('formats returns the expected result for images', () => {
+      const fragment = new Fragment({
+        ownerId: '1234',
+        type: 'image/png',
+        size: 0,
+      });
+      expect(fragment.formats).toEqual(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
+    });
+  });
+
   describe('save(), getData(), setData(), byId(), byUser(), delete()', () => {
     test('byUser() returns an empty array if there are no fragments for this user', async () => {
       expect(await Fragment.byUser('1234')).toEqual([]);
@@ -270,6 +279,24 @@ describe('Fragment class', () => {
 
       const result = await fragment.convert('html');
       expect(result).toContain('<h1>Header</h1>');
+    });
+
+    test('Converts image extensions', async () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'image/jpeg', size: 0 });
+      await fragment.save();
+      await fragment.setData(fs.readFileSync(`${__dirname}/images/Apple.jpg`));
+
+      const result = await fragment.convert('png');
+
+      expect(Buffer.isBuffer(result)).toBe(true);
+    });
+
+    test('Get full name of .jpg mime type via extFullName()', async () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'image/jpeg', size: 0 });
+      const ext = 'jpg';
+
+      const extension = fragment.extFullName(ext);
+      expect(extension).toBe('jpeg');
     });
 
     test('Does not convert html for non-markdown content', async () => {

@@ -2,6 +2,7 @@
 const request = require('supertest');
 
 const app = require('../../src/app');
+const fs = require('fs');
 
 describe('GET /v1/fragments/:id or GET /v1/fragments/:id.ext', () => {
   test('Check if it gets a valid fragment of text/plain with valid ext', async () => {
@@ -83,7 +84,7 @@ describe('GET /v1/fragments/:id or GET /v1/fragments/:id.ext', () => {
     const resPost = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'text/plain')
+      .set('Content-Type', 'text/markdown')
       .send('This is a fragment');
 
     const res = await request(app)
@@ -131,5 +132,39 @@ describe('GET /v1/fragments/:id or GET /v1/fragments/:id.ext', () => {
       .send('This is a fragment');
 
     expect(res.status).toBe(404);
+  });
+
+  test('Converting jpg to png', async () => {
+    const post = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'image/jpeg')
+      .send(fs.readFileSync(`${__dirname}/images/Apple.jpg`));
+
+    expect(post.statusCode).toBe(201);
+
+    const res = await request(app)
+      .get(`/v1/fragments/${post.body.fragment.id}.png`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res.statusCode).toBe(200);
+    expect(res.type).toBe('image/png');
+  });
+
+  test('Testing if the type is image/jpeg with full name', async () => {
+    const post = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'image/png')
+      .send(fs.readFileSync(`${__dirname}/images/Apple.png`));
+
+    expect(post.statusCode).toBe(201);
+
+    const res = await request(app)
+      .get(`/v1/fragments/${post.body.fragment.id}.jpg`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res.statusCode).toBe(200);
+    expect(res.type).toBe('image/jpeg');
   });
 });

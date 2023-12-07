@@ -1,10 +1,14 @@
 // Use crypto.randomUUID() to create unique IDs, see:
 // https://nodejs.org/api/crypto.html#cryptorandomuuidoptions
 const { randomUUID } = require('crypto');
+
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
 const MarkdownIt = require('markdown-it'),
   md = new MarkdownIt();
+
+// sharp:
+const sharp = require('sharp');
 
 // Functions for working with fragment metadata/data using our DB
 const {
@@ -27,7 +31,11 @@ class Fragment {
     if (size < 0) {
       throw new Error('Size cannot be negative');
     }
-    if (!type.startsWith('text/') && !type.startsWith('application/json')) {
+    if (
+      !type.startsWith('text/') &&
+      !type.startsWith('application/json') &&
+      !type.startsWith('image')
+    ) {
       throw new Error('Invalid type');
     }
 
@@ -130,7 +138,22 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    return [this.mimeType];
+    const imageFormats = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+    const textFormats = {
+      'text/plain': ['text/plain'],
+      'text/markdown': ['text/plain', 'text/html', 'text/markdown'],
+      'text/html': ['text/plain', 'text/html'],
+      'application/json': ['application/json', 'text/plain'],
+    };
+
+    for (const key of Object.keys(textFormats)) {
+      if (this.type.includes(key)) {
+        return textFormats[key];
+      }
+    }
+
+    // If not textFormats then return imageFormats
+    return imageFormats;
   }
 
   /**
@@ -145,6 +168,10 @@ class Fragment {
       'text/markdown',
       'text/html',
       'application/json',
+      `image/png`,
+      `image/jpeg`,
+      `image/webp`,
+      `image/gif`,
     ];
     return validTypes.includes(value);
   }
@@ -152,14 +179,25 @@ class Fragment {
   /*
    * Does valid conversions with current content-type.
    */
-  async convert(value) {
+  async convert(ext) {
     var fragment = await this.getData();
     var result;
-    if (value == 'txt') {
-      result = fragment;
-    } else if (value == 'html') {
-      if (this.mimeType.endsWith('markdown')) {
-        result = md.render(fragment.toString());
+    if (this.type.startsWith('text') || this.type.startsWith('application')) {
+      if (ext == 'txt') {
+        result = fragment;
+      } else if (ext == 'html') {
+        if (this.type.endsWith('markdown')) {
+          result = md.render(fragment.toString());
+        }
+      }
+    }
+
+    // if converting an image
+    if (this.type.startsWith('image')) {
+      // Check what the value (ext) is and convert it accordingly
+      if (ext == 'png' || ext == 'jpg' || ext == 'webp' || ext == 'gif') {
+        // Convert any input to the ext
+        result = await sharp(fragment).toFormat(ext).toBuffer();
       }
     }
 
@@ -176,6 +214,8 @@ class Fragment {
       extension = 'plain';
     } else if (value == 'md') {
       extension = 'markdown';
+    } else if (value == 'jpg') {
+      extension = 'jpeg';
     } else {
       extension = value;
     }

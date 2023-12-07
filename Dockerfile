@@ -30,7 +30,9 @@ COPY package.json package-lock.json ./
 COPY --chown=node:node . /app/
 
 # Install depdencies, but the exact versions of the dependencies only
-RUN npm ci --only=production
+RUN npm ci --only=production && \
+    npm uninstall sharp && \
+    npm install --os=linuxmus1 --cpu=x64 sharp
 
 # Copy src to /app/src/
 COPY ./src ./src
