@@ -54,7 +54,14 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    return listFragments(ownerId, expand);
+    try {
+      logger.debug({ ownerId, expand }, 'byUser()');
+      const fragment = await listFragments(ownerId, expand);
+      return fragment;
+    } catch (err) {
+      logger.error({ err }, `Unable to get fragments by user`);
+      return [];
+    }
   }
 
   /**
@@ -64,11 +71,16 @@ class Fragment {
    * @returns Promise<Fragment>
    */
   static async byId(ownerId, id) {
-    const fragment = await readFragment(ownerId, id);
-    if (!fragment) {
-      throw new Error(`Fragment with id ${id} not found.`);
+    logger.debug({ ownerId, id }, 'byId()');
+    try {
+      const fragment = await readFragment(ownerId, id);
+      if (!fragment) {
+        throw new Error(`Fragment with id ${id} not found.`);
+      }
+      return fragment;
+    } catch (err) {
+      throw new Error(`Couldn't find fragment`);
     }
-    return fragment;
   }
 
   /**
@@ -77,8 +89,8 @@ class Fragment {
    * @param {string} id fragment's id
    * @returns Promise<void>
    */
-  static async delete(ownerId, id) {
-    return await deleteFragment(ownerId, id);
+  static delete(ownerId, id) {
+    return deleteFragment(ownerId, id);
   }
 
   /**
@@ -86,8 +98,13 @@ class Fragment {
    * @returns Promise<void>
    */
   async save() {
-    await writeFragment(this);
-    this.updated = new Date().toISOString();
+    logger.debug({ fragment: this }, ' saving fragment save()');
+    try {
+      this.updated = new Date().toISOString();
+      return writeFragment(this);
+    } catch (err) {
+      logger.error({ err }, `Unable to save fragment`);
+    }
   }
 
   /**
