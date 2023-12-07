@@ -95,9 +95,12 @@ class Fragment {
    * @returns Promise<Buffer>
    */
   getData() {
-    logger.info({ ownerId: this.ownerId, id: this.ownerId }, `Getting data using getData()`);
-    const data = readFragmentData(this.ownerId, this.id);
-    return data;
+    logger.info('getData()');
+    try {
+      return readFragmentData(this.ownerId, this.id);
+    } catch (err) {
+      logger.error({ err }, `Unable to get fragment data`);
+    }
   }
 
   /**
