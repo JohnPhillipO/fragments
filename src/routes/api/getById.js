@@ -13,11 +13,10 @@ module.exports = async (req, res) => {
   let ext = query.ext.split('.').pop();
   try {
     const fragment = await Fragment.byId(req.user, query.name);
-    let data = null;
+    let data = await fragment.getData();
 
     if (!ext || fragment.type.endsWith(fragment.extFullName(ext))) {
       // (no extension and has same type and ext) = no conversions
-      data = await fragment.getData();
       res.setHeader('Content-Type', fragment.type);
       res.status(200).send(Buffer.from(data));
       logger.info(
@@ -30,14 +29,14 @@ module.exports = async (req, res) => {
         // Check if it's a image conversion or test conversion
         if (fragment.isText || fragment.type == 'application/json') {
           // Text conversion
-          data = await fragment.convert(ext);
+          let result = await fragment.convert(ext);
           res.setHeader('Content-Type', `text/${fragment.extFullName(ext)}`);
-          res.status(200).send(Buffer.from(data));
+          res.status(200).send(Buffer.from(result));
         } else {
           // Image conversion
-          data = await fragment.convert(ext);
+          let result = await fragment.convert(ext);
           res.setHeader('Content-Type', `image/${fragment.extFullName(ext)}`);
-          res.status(200).send(data);
+          res.status(200).send(result);
         }
       } catch (err) {
         res.status(415).json(createErrorResponse(415, 'unknown or unsupported type'));
