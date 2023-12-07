@@ -4,6 +4,7 @@ const { Fragment } = require('../../model/fragment');
 const { createErrorResponse } = require('../../response');
 // Using node path module.
 const path = require('path');
+const logger = require('../../logger');
 
 module.exports = async (req, res) => {
   // use path modules path.parse to split the idWithExit into respected objects
@@ -19,6 +20,10 @@ module.exports = async (req, res) => {
       data = await fragment.getData();
       res.setHeader('Content-Type', fragment.type);
       res.status(200).send(Buffer.from(data));
+      logger.info(
+        { fragmentData: data, contentType: fragment.type },
+        `Fragment data retrieved successfully!`
+      );
     } else {
       // Convert
       try {

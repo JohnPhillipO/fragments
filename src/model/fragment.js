@@ -6,7 +6,7 @@ const { randomUUID } = require('crypto');
 const contentType = require('content-type');
 const MarkdownIt = require('markdown-it'),
   md = new MarkdownIt();
-
+const logger = require('../logger');
 // sharp:
 const sharp = require('sharp');
 
@@ -94,8 +94,13 @@ class Fragment {
    * Gets the fragment's data from the database
    * @returns Promise<Buffer>
    */
-  getData() {
-    const data = readFragmentData(this.ownerId, this.id);
+  async getData() {
+    logger.info({ ownerId: this.ownerId, id: this.ownerId }, `Getting data using getData()`);
+    const data = await readFragmentData(this.ownerId, this.id);
+    logger.info(
+      { fragmentData: data },
+      `This is the data we got back from readFragmentData() in getData()`
+    );
     return data;
   }
 
