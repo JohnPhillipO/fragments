@@ -74,10 +74,13 @@ class Fragment {
     logger.debug({ ownerId, id }, 'byId()');
     try {
       const fragment = await readFragment(ownerId, id);
+      logger.debug({ fragment }, 'object of fragment');
+      const newFragment = new Fragment(fragment);
       if (!fragment) {
         throw new Error(`Fragment with id ${id} not found.`);
       }
-      return fragment;
+      logger.debug({ newFragment }, 'instance of fragment');
+      return newFragment;
     } catch (err) {
       throw new Error(`Couldn't find fragment`);
     }
