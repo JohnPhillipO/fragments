@@ -109,14 +109,16 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    // Throw error if not given a buffer
-    if (!Buffer.isBuffer(data)) {
-      throw new Error('Data must be a buffer');
+    try {
+      if (!data) {
+        return Promise.reject(new Error('Data cannot be empty.'));
+      }
+      await this.save();
+      this.size = data.length;
+      return writeFragmentData(this.ownerId, this.id, data);
+    } catch (err) {
+      return Promise.reject(new Error('Data is not in buffer'));
     }
-    this.size = data.length;
-    await writeFragmentData(this.ownerId, this.id, data);
-    this.updated = new Date().toISOString();
-    this.save(); // Saving after updating
   }
 
   /**
