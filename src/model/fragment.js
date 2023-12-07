@@ -94,13 +94,9 @@ class Fragment {
    * Gets the fragment's data from the database
    * @returns Promise<Buffer>
    */
-  async getData() {
+  getData() {
     logger.info({ ownerId: this.ownerId, id: this.ownerId }, `Getting data using getData()`);
-    const data = await readFragmentData(this.ownerId, this.id);
-    logger.info(
-      { fragmentData: data },
-      `This is the data we got back from readFragmentData() in getData()`
-    );
+    const data = readFragmentData(this.ownerId, this.id);
     return data;
   }
 
