@@ -54,14 +54,9 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    try {
-      logger.debug({ ownerId, expand }, 'byUser()');
-      const fragment = await listFragments(ownerId, expand);
-      return fragment;
-    } catch (err) {
-      logger.error({ err }, `Unable to get fragments by user`);
-      return [];
-    }
+    logger.debug({ ownerId, expand }, 'byUser()');
+    const fragment = await listFragments(ownerId, expand);
+    return fragment;
   }
 
   /**
@@ -74,15 +69,10 @@ class Fragment {
     logger.debug({ ownerId, id }, 'byId()');
     try {
       const fragment = await readFragment(ownerId, id);
-      logger.debug({ fragment }, 'object of fragment');
       const newFragment = new Fragment(fragment);
-      if (!fragment) {
-        throw new Error(`Fragment with id ${id} not found.`);
-      }
-      logger.debug({ newFragment }, 'instance of fragment');
       return newFragment;
     } catch (err) {
-      throw new Error(`Couldn't find fragment`);
+      throw new Error(`Fragment with id ${id} not found.`);
     }
   }
 
@@ -131,13 +121,13 @@ class Fragment {
   async setData(data) {
     try {
       if (!data) {
-        return Promise.reject(new Error('Data cannot be empty.'));
+        throw new Error('Data cannot be empty.');
       }
       await this.save();
       this.size = data.length;
       return writeFragmentData(this.ownerId, this.id, data);
     } catch (err) {
-      return Promise.reject(new Error('Data is not in buffer'));
+      throw new Error('Data is not in buffer');
     }
   }
 
